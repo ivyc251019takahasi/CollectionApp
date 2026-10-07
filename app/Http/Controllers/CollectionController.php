@@ -21,7 +21,10 @@ class CollectionController extends Controller
         });
     }
 
-    $collections = $query->latest()->get();
+    $collections = $query
+    ->where('user_id', auth()->id())
+    ->latest()
+    ->get();
 
     return view('collections.index', compact('collections'));
 }
@@ -40,16 +43,21 @@ class CollectionController extends Controller
             if ($request->hasFile('photo')) {
                 $validated['photo'] = $request->file('photo')->store('photos', 'public');
             }
+            $validated['user_id'] = auth()->id();
             Collection::create($validated);
             return redirect()->route('collections.index');
     }
     public function edit(Collection $collection)
-{
-    return view('collections.edit', compact('collection'));
-}
+    {
+        abort_unless($collection->user_id === auth()->id(), 403);
+
+        return view('collections.edit', compact('collection'));
+    }
 
 public function update(Request $request, Collection $collection)
 {
+    abort_unless($collection->user_id === auth()->id(), 403);
+
     $validated = $request->validate([
         'name' => ['required', 'string', 'max:255'],
         'genre' => ['required', 'string', 'max:255'],
@@ -68,6 +76,8 @@ public function update(Request $request, Collection $collection)
 
 public function destroy(Collection $collection)
 {
+    abort_unless($collection->user_id === auth()->id(), 403);
+    
     $collection->delete();
 
     return redirect()->route('collections.index');

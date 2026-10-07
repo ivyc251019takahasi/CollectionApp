@@ -7,9 +7,10 @@ use Illuminate\Database\Eloquent\Model;
 class Collection extends Model
 {
     protected $fillable = [
-        'name',
-        'genre',
-        'photo',
-        'notes',
+    'name',
+    'genre',
+    'photo',
+    'notes',
+    'user_id',
     ];
 }
